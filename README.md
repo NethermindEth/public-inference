@@ -6,6 +6,10 @@ A decentralized marketplace for funding and executing large-scale AI inference c
 
 Public Inference Platform enables democratic access to large-scale AI compute resources through a decentralized funding mechanism. Users can propose research projects, contribute funds, and leverage distributed inference capabilities across multiple AI models and providers.
 
+The **ultimate** goal is permissionless access to a distributed "[country of geniuses in a datacenter](https://darioamodei.com/machines-of-loving-grace)".
+
+The **incremental** goal is a marketplace for innovation in the orchestration of AI inference tasks across providers, strategies, inputs, etc. Competitive cat-herding for agentic AI researchers.
+
 ## Key Features
 
 - Permissionless project creation and funding

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { NextPage } from "next";
 import { useAccount } from "wagmi";
@@ -19,24 +19,40 @@ const Home: NextPage = () => {
     contractName: "PublicInference",
   });
 
-  // Read total projects
-  const { data: projectCount } = useScaffoldContract({
-    contractName: "PublicInference",
-    functionName: "projectCount",
-  });
+  // Read project count using the contract
+  const [projectCount, setProjectCount] = useState<bigint | null>(null);
+
+  // Function to fetch project count
+  const fetchProjectCount = async () => {
+    if (!publicInferenceContract) return;
+    try {
+      const count = await publicInferenceContract.read.projectCount();
+      setProjectCount(count);
+    } catch (error) {
+      console.error("Error fetching project count:", error);
+    }
+  };
+
+  // Fetch project count on component mount and when contract is available
+  useEffect(() => {
+    fetchProjectCount();
+  }, [publicInferenceContract]);
 
   const handleCreateProject = async () => {
     if (!publicInferenceContract) return;
 
     try {
-      const tx = await publicInferenceContract.createProject(
+      const tx = await publicInferenceContract.write.createProject([
         title,
         description,
-        fundingGoal ? BigInt(fundingGoal) : BigInt(0),
-        deadline ? BigInt(deadline) : BigInt(0),
-        { ipfsCID: "0x" }, // Default ComputeSpec
-      );
+        BigInt(fundingGoal),
+        BigInt(deadline),
+        { ipfsCID: "0x" },
+      ]);
       await tx.wait();
+
+      // Refresh project count
+      await fetchProjectCount();
 
       // Clear form
       setTitle("");
@@ -106,7 +122,7 @@ const Home: NextPage = () => {
 
         {/* Project Stats */}
         <div className="mt-8 text-center">
-          <p className="text-xl">Total Projects: {projectCount ? projectCount.toString() : "Loading..."}</p>
+          <p className="text-xl">Total Projects: {projectCount !== null ? projectCount.toString() : "Loading..."}</p>
         </div>
       </div>
 

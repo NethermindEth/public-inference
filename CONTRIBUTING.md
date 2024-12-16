@@ -1,86 +1,84 @@
-# Welcome to Scaffold-ETH 2 Contributing Guide
+This project is built with `scaffold-eth-2`.
 
-Thank you for investing your time in contributing to Scaffold-ETH 2!
+Here are build/run instructions, from its default readme.
 
-This guide aims to provide an overview of the contribution workflow to help us make the contribution process effective for everyone involved.
+# 🏗 Scaffold-ETH 2
 
-## About the Project
+<h4 align="center">
+  <a href="https://docs.scaffoldeth.io">Documentation</a> |
+  <a href="https://scaffoldeth.io">Website</a>
+</h4>
 
-Scaffold-ETH 2 is a minimal and forkable repo providing builders with a starter kit to build decentralized applications on Ethereum.
+🧪 An open-source, up-to-date toolkit for building decentralized applications (dapps) on the Ethereum blockchain. It's designed to make it easier for developers to create and deploy smart contracts and build user interfaces that interact with those contracts.
 
-Read the [README](README.md) to get an overview of the project.
+⚙️ Built using NextJS, RainbowKit, Foundry, Wagmi, Viem, and Typescript.
 
-### Vision
+- ✅ **Contract Hot Reload**: Your frontend auto-adapts to your smart contract as you edit it.
+- 🪝 **[Custom hooks](https://docs.scaffoldeth.io/hooks/)**: Collection of React hooks wrapper around [wagmi](https://wagmi.sh/) to simplify interactions with smart contracts with typescript autocompletion.
+- 🧱 [**Components**](https://docs.scaffoldeth.io/components/): Collection of common web3 components to quickly build your frontend.
+- 🔥 **Burner Wallet & Local Faucet**: Quickly test your application with a burner wallet and local faucet.
+- 🔐 **Integration with Wallet Providers**: Connect to different wallet providers and interact with the Ethereum network.
 
-The goal of Scaffold-ETH 2 is to provide the primary building blocks for a decentralized application.
+![Debug Contracts tab](https://github.com/scaffold-eth/scaffold-eth-2/assets/55535804/b237af0c-5027-4849-a5c1-2e31495cccb1)
 
-The repo can be forked to include integrations and more features, but we want to keep the master branch simple and minimal.
+## Requirements
 
-### Project Status
+Before you begin, you need to install the following tools:
 
-The project is under active development.
+- [Node (>= v18.18)](https://nodejs.org/en/download/)
+- Yarn ([v1](https://classic.yarnpkg.com/en/docs/install/) or [v2+](https://yarnpkg.com/getting-started/install))
+- [Git](https://git-scm.com/downloads)
 
-You can view the open Issues, follow the development process and contribute to the project.
+## Quickstart
 
-## Getting started
+To get started with Scaffold-ETH 2, follow the steps below:
 
-You can contribute to this repo in many ways:
+1. Install dependencies if it was skipped in CLI:
 
-- Solve open issues
-- Report bugs or feature requests
-- Improve the documentation
+```
+cd my-dapp-example
+yarn install
+```
 
-Contributions are made via Issues and Pull Requests (PRs). A few general guidelines for contributions:
+2. Run a local network in the first terminal:
 
-- Search for existing Issues and PRs before creating your own.
-- Contributions should only fix/add the functionality in the issue OR address style issues, not both.
-- If you're running into an error, please give context. Explain what you're trying to do and how to reproduce the error.
-- Please use the same formatting in the code repository. You can configure your IDE to do it by using the prettier / linting config files included in each package.
-- If applicable, please edit the README.md file to reflect the changes.
+```
+yarn chain
+```
 
-### Issues
+This command starts a local Ethereum network using Foundry. The network runs on your local machine and can be used for testing and development. You can customize the network configuration in `packages/foundry/foundry.toml`.
 
-Issues should be used to report problems, request a new feature, or discuss potential changes before a PR is created.
+3. On a second terminal, deploy the test contract:
 
-#### Solve an issue
+```
+yarn deploy
+```
 
-Scan through our [existing issues](https://github.com/scaffold-eth/scaffold-eth-2/issues) to find one that interests you.
+This command deploys a test smart contract to the local network. The contract is located in `packages/foundry/contracts` and can be modified to suit your needs. The `yarn deploy` command uses the deploy script located in `packages/foundry/script` to deploy the contract to the network. You can also customize the deploy script.
 
-If a contributor is working on the issue, they will be assigned to the individual. If you find an issue to work on, you are welcome to assign it to yourself and open a PR with a fix for it.
+4. On a third terminal, start your NextJS app:
 
-#### Create a new issue
+```
+yarn start
+```
 
-If a related issue doesn't exist, you can open a new issue.
+Visit your app on: `http://localhost:3000`. You can interact with your smart contract using the `Debug Contracts` page. You can tweak the app config in `packages/nextjs/scaffold.config.ts`.
 
-Some tips to follow when you are creating an issue:
+Run smart contract test with `yarn foundry:test`
 
-- Provide as much context as possible. Over-communicate to give the most details to the reader.
-- Include the steps to reproduce the issue or the reason for adding the feature.
-- Screenshots, videos etc., are highly appreciated.
+- Edit your smart contracts in `packages/foundry/contracts`
+- Edit your frontend homepage at `packages/nextjs/app/page.tsx`. For guidance on [routing](https://nextjs.org/docs/app/building-your-application/routing/defining-routes) and configuring [pages/layouts](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts) checkout the Next.js documentation.
+- Edit your deployment scripts in `packages/foundry/script`
 
-### Pull Requests
 
-#### Pull Request Process
+## Documentation
 
-We follow the ["fork-and-pull" Git workflow](https://github.com/susam/gitpr)
+Visit our [docs](https://docs.scaffoldeth.io) to learn how to start building with Scaffold-ETH 2.
 
-1. Fork the repo
-2. Clone the project
-3. Create a new branch with a descriptive name
-4. Commit your changes to the new branch
-5. Push changes to your fork
-6. Open a PR in our repository and tag one of the maintainers to review your PR
+To know more about its features, check out our [website](https://scaffoldeth.io).
 
-Here are some tips for a high-quality pull request:
+## Contributing to Scaffold-ETH 2
 
-- Create a title for the PR that accurately defines the work done.
-- Structure the description neatly to make it easy to consume by the readers. For example, you can include bullet points and screenshots instead of having one large paragraph.
-- Add the link to the issue if applicable.
-- Have a good commit message that summarises the work done.
+We welcome contributions to Scaffold-ETH 2!
 
-Once you submit your PR:
-
-- We may ask questions, request additional information or ask for changes to be made before a PR can be merged. Please note that these are to make the PR clear for everyone involved and aims to create a frictionless interaction process.
-- As you update your PR and apply changes, mark each conversation resolved.
-
-Once the PR is approved, we'll "squash-and-merge" to keep the git commit history clean.
+Please see [CONTRIBUTING.MD](https://github.com/scaffold-eth/scaffold-eth-2/blob/main/CONTRIBUTING.md) for more information and guidelines for contributing to Scaffold-ETH 2.

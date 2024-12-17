@@ -104,14 +104,20 @@ const Home: NextPage = () => {
               />
             </div>
             <div>
-              <label className="label">Deadline (Unix Timestamp)</label>
+              <label className="label">Deadline</label>
               <input
-                type="number"
+                type="datetime-local"
                 className="input input-bordered w-full"
-                value={deadline}
-                onChange={e => setDeadline(e.target.value)}
+                value={deadline ? new Date(parseInt(deadline) * 1000).toISOString().slice(0, 16) : ""}
+                onChange={e => {
+                  const selectedDate = new Date(e.target.value);
+                  const unixTimestamp = Math.floor(selectedDate.getTime() / 1000).toString();
+                  setDeadline(unixTimestamp);
+                }}
+                min={new Date().toISOString().slice(0, 16)} // Prevents selecting past dates
               />
             </div>
+
             <button className="btn btn-primary w-full" onClick={handleCreateProject}>
               Create Project
             </button>

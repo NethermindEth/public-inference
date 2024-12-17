@@ -5,7 +5,7 @@ import Link from "next/link";
 import type { NextPage } from "next";
 import { useAccount } from "wagmi";
 import { Address } from "~~/components/scaffold-eth";
-import { useScaffoldContract } from "~~/hooks/scaffold-eth";
+import { useScaffoldContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 
 const Home: NextPage = () => {
   const { address: connectedAddress } = useAccount();
@@ -38,18 +38,16 @@ const Home: NextPage = () => {
     fetchProjectCount();
   }, [publicInferenceContract]);
 
-  const handleCreateProject = async () => {
-    if (!publicInferenceContract) return;
+  const { writeContractAsync: createProjectAsync } = useScaffoldWriteContract("PublicInference");
 
+  const handleCreateProject = async () => {
     try {
-      const tx = await publicInferenceContract.write.createProject([
-        title,
-        description,
-        BigInt(fundingGoal),
-        BigInt(deadline),
-        { ipfsCID: "0x" },
-      ]);
-      await tx.wait();
+      const emptyBytes32 = "0".repeat(64); // 64 hex characters = 32 bytes
+
+      const tx = await createProjectAsync({
+        functionName: "createProject",
+        args: [title, description, BigInt(fundingGoal), BigInt(deadline), { ipfsCID: `0x${emptyBytes32}` }],
+      });
 
       // Refresh project count
       await fetchProjectCount();
@@ -122,7 +120,7 @@ const Home: NextPage = () => {
 
         {/* Project Stats */}
         <div className="mt-8 text-center">
-          <p className="text-xl">Total Projects: {projectCount !== null ? projectCount.toString() : "Loading..."}</p>
+          <p className="text-xl">Total Projects: {projectCount ? projectCount.toString() : "Loading..."}</p>
         </div>
       </div>
 

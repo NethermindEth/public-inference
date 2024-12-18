@@ -1,11 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import type { NextPage } from "next";
 import { useAccount } from "wagmi";
+import { ProjectCard } from "~~/components/ProjectCard";
 import { Address } from "~~/components/scaffold-eth";
 import { useScaffoldContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+
+interface Project {
+  id: number;
+  creator: string;
+  title: string;
+  description: string;
+  fundingGoal: bigint;
+  deadline: bigint;
+  currentFunding: bigint;
+  isActive: boolean;
+}
 
 const Home: NextPage = () => {
   const { address: connectedAddress } = useAccount();
@@ -13,17 +25,19 @@ const Home: NextPage = () => {
   const [description, setDescription] = useState("");
   const [fundingGoal, setFundingGoal] = useState("");
   const [deadline, setDeadline] = useState("");
+  const [projectCount, setProjectCount] = useState<bigint | null>(null);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Get contract instance
   const { data: publicInferenceContract } = useScaffoldContract({
     contractName: "PublicInference",
   });
 
-  // Read project count using the contract
-  const [projectCount, setProjectCount] = useState<bigint | null>(null);
+  const handleContribute = async (projectId: number) => {
+    console.log("Contributing to project:", projectId);
+  };
 
-  // Function to fetch project count
-  const fetchProjectCount = async () => {
+  const fetchProjectCount = useCallback(async () => {
     if (!publicInferenceContract) return;
     try {
       const count = await publicInferenceContract.read.projectCount();
@@ -31,28 +45,64 @@ const Home: NextPage = () => {
     } catch (error) {
       console.error("Error fetching project count:", error);
     }
-  };
-
-  // Fetch project count on component mount and when contract is available
-  useEffect(() => {
-    fetchProjectCount();
   }, [publicInferenceContract]);
+
+  const fetchProjects = useCallback(async () => {
+    if (!publicInferenceContract || projectCount === null) return;
+
+    try {
+      const projectsArray: Project[] = [];
+      for (let i = 1; i <= projectCount; i++) {
+        const project = await publicInferenceContract.read.projects([BigInt(i)]);
+        const [creator, title, description, fundingGoal, deadline, currentFunding, isActive] = project;
+
+        projectsArray.push({
+          id: i,
+          creator,
+          title,
+          description,
+          fundingGoal,
+          deadline,
+          currentFunding,
+          isActive,
+        });
+      }
+      setProjects(projectsArray);
+    } catch (error) {
+      console.error("Error fetching projects:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [publicInferenceContract, projectCount]);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      fetchProjectCount();
+      fetchProjects();
+    }, 5000);
+
+    fetchProjectCount();
+    fetchProjects();
+
+    return () => clearInterval(intervalId);
+  }, [fetchProjectCount, fetchProjects]);
 
   const { writeContractAsync: createProjectAsync } = useScaffoldWriteContract("PublicInference");
 
   const handleCreateProject = async () => {
     try {
-      const emptyBytes32 = "0".repeat(64); // 64 hex characters = 32 bytes
+      const emptyBytes32 = "0".repeat(64);
 
-      const tx = await createProjectAsync({
+      await createProjectAsync({
         functionName: "createProject",
         args: [title, description, BigInt(fundingGoal), BigInt(deadline), { ipfsCID: `0x${emptyBytes32}` }],
       });
 
-      // Refresh project count
-      await fetchProjectCount();
+      setTimeout(() => {
+        fetchProjectCount();
+        fetchProjects();
+      }, 2000);
 
-      // Clear form
       setTitle("");
       setDescription("");
       setFundingGoal("");
@@ -65,6 +115,25 @@ const Home: NextPage = () => {
   return (
     <div className="flex items-center flex-col flex-grow pt-10">
       <div className="px-5">
+        <div className="max-w-7xl w-full mt-16 px-5">
+          <h2 className="text-3xl font-bold mb-8">Active Projects</h2>
+          {isLoading ? (
+            <div className="flex justify-center">
+              <span className="loading loading-spinner loading-lg"></span>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {projects.map(project => (
+                <ProjectCard key={project.id} {...project} onContribute={handleContribute} />
+              ))}
+            </div>
+          )}
+          {!isLoading && projects.length === 0 && (
+            <div className="text-center py-10">
+              <p className="text-xl">No projects found. Be the first to create one!</p>
+            </div>
+          )}
+        </div>
         <h1 className="text-center">
           <span className="block text-4xl font-bold">Public Inference Platform</span>
         </h1>
@@ -114,7 +183,7 @@ const Home: NextPage = () => {
                   const unixTimestamp = Math.floor(selectedDate.getTime() / 1000).toString();
                   setDeadline(unixTimestamp);
                 }}
-                min={new Date().toISOString().slice(0, 16)} // Prevents selecting past dates
+                min={new Date().toISOString().slice(0, 16)}
               />
             </div>
 

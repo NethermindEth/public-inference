@@ -380,25 +380,6 @@ const deployedContracts = {
         },
         {
           type: "event",
-          name: "Debug",
-          inputs: [
-            {
-              name: "message",
-              type: "string",
-              indexed: false,
-              internalType: "string",
-            },
-            {
-              name: "value",
-              type: "uint256",
-              indexed: false,
-              internalType: "uint256",
-            },
-          ],
-          anonymous: false,
-        },
-        {
-          type: "event",
           name: "FundsRefunded",
           inputs: [
             {

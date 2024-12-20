@@ -140,6 +140,10 @@ const Home: NextPage = () => {
 
   return (
     <div className="flex items-center flex-col flex-grow pt-10">
+      <h1 className="text-center">
+        <span className="block text-4xl font-bold">Public Inference Platform</span>
+      </h1>
+
       <div className="px-5">
         <div className="max-w-7xl w-full mt-16 px-5">
           <h2 className="text-3xl font-bold mb-8">Active Projects</h2>
@@ -159,13 +163,6 @@ const Home: NextPage = () => {
               <p className="text-xl">No projects found. Be the first to create one!</p>
             </div>
           )}
-        </div>
-        <h1 className="text-center">
-          <span className="block text-4xl font-bold">Public Inference Platform</span>
-        </h1>
-        <div className="flex justify-center items-center space-x-2 flex-col sm:flex-row">
-          <p className="my-2 font-medium">Connected Address:</p>
-          <Address address={connectedAddress} />
         </div>
 
         {/* Project Creation Form */}

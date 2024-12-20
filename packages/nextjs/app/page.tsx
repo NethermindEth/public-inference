@@ -17,6 +17,7 @@ interface Project {
   deadline: bigint;
   currentFunding: bigint;
   isActive: boolean;
+  ipfsCid?: string;
 }
 
 const Home: NextPage = () => {
@@ -28,6 +29,7 @@ const Home: NextPage = () => {
   const [projectCount, setProjectCount] = useState<bigint | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [ipfsCid, setIpfsCid] = useState("");
 
   const { data: publicInferenceContract } = useScaffoldContract({
     contractName: "PublicInference",
@@ -50,7 +52,6 @@ const Home: NextPage = () => {
   const fetchProjects = useCallback(async () => {
     if (!publicInferenceContract || projectCount === null) return;
 
-    // Only set loading true on initial load
     if (projects.length === 0) {
       setIsLoading(true);
     }
@@ -58,7 +59,7 @@ const Home: NextPage = () => {
       const projectsArray: Project[] = [];
       for (let i = 0; i < projectCount; i++) {
         const project = await publicInferenceContract.read.projects([BigInt(i)]);
-        const [title, description, creator, fundingGoal, currentFunding, deadline, isActive] = project;
+        const [title, description, creator, fundingGoal, currentFunding, deadline, isActive, , computeSpec] = project;
 
         projectsArray.push({
           id: i,
@@ -69,10 +70,9 @@ const Home: NextPage = () => {
           deadline,
           currentFunding,
           isActive,
+          ipfsCid: computeSpec.ipfsCID,
         });
       }
-      // console.log(`pcard entry [${i}]: ${JSON.stringify(projectsArray[projectsArray.length - 1])}`);
-
       setProjects(projectsArray);
     } catch (error) {
       console.error("Error fetching projects:", error);
@@ -97,11 +97,17 @@ const Home: NextPage = () => {
 
   const handleCreateProject = async () => {
     try {
-      const emptyBytes32 = "0".repeat(64);
+      // Convert IPFS CID to bytes32
+      let cidBytes32 = ipfsCid;
+      if (!cidBytes32.startsWith("0x")) {
+        cidBytes32 = "0x" + cidBytes32;
+      }
+      // Pad with zeros if necessary
+      cidBytes32 = cidBytes32.padEnd(66, "0");
 
       await createProjectAsync({
         functionName: "createProject",
-        args: [title, description, BigInt(fundingGoal), BigInt(deadline), { ipfsCID: `0x${emptyBytes32}` }],
+        args: [title, description, BigInt(fundingGoal), BigInt(deadline), { ipfsCID: cidBytes32 as `0x${string}` }],
       });
 
       setTimeout(() => {
@@ -113,6 +119,7 @@ const Home: NextPage = () => {
       setDescription("");
       setFundingGoal("");
       setDeadline("");
+      setIpfsCid("");
     } catch (error) {
       console.error("Error creating project:", error);
     }
@@ -190,6 +197,18 @@ const Home: NextPage = () => {
                   setDeadline(unixTimestamp);
                 }}
                 min={new Date().toISOString().slice(0, 16)}
+              />
+            </div>
+
+            <div>
+              <label className="label">Workflow ID</label>
+              {/* TODO: look up workflows to populate a dropdown */}
+              <input
+                type="text"
+                className="input input-bordered w-full"
+                value={ipfsCid}
+                onChange={e => setIpfsCid(e.target.value)}
+                placeholder="Enter ID for workflow"
               />
             </div>
 

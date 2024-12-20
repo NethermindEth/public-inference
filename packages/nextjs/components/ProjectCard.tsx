@@ -9,6 +9,7 @@ interface ProjectCardProps {
   deadline: bigint;
   currentFunding: bigint;
   isActive: boolean;
+  ipfsCid?: string;
   onContribute?: (id: number) => void;
 }
 
@@ -29,6 +30,7 @@ export const ProjectCard = ({
   deadline,
   currentFunding,
   isActive,
+  ipfsCid,
   onContribute,
 }: ProjectCardProps) => {
   return (
@@ -39,6 +41,12 @@ export const ProjectCard = ({
           Created by: <Address address={creator} />
         </p>
         <p className="mb-4">{description}</p>
+        {ipfsCid && (
+          <div className="mt-2">
+            <span className="text-sm font-semibold">Workflow CID: </span>
+            <span className="text-sm font-mono break-all">{ipfsCid}</span>
+          </div>
+        )}
         <div className="space-y-2">
           <div className="flex justify-between">
             <span>Funding Goal:</span>

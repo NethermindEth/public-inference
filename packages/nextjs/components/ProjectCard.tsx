@@ -2,7 +2,7 @@ import { Address } from "./scaffold-eth";
 
 interface ProjectCardProps {
   id: number;
-  creator: string;
+  creator: `0x${string}`;
   title: string;
   description: string;
   fundingGoal: bigint;

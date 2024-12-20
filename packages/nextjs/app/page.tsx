@@ -10,7 +10,7 @@ import { useScaffoldContract, useScaffoldWriteContract } from "~~/hooks/scaffold
 
 interface Project {
   id: number;
-  creator: string;
+  creator: `0x${string}`;
   title: string;
   description: string;
   fundingGoal: bigint;
@@ -50,15 +50,19 @@ const Home: NextPage = () => {
   const fetchProjects = useCallback(async () => {
     if (!publicInferenceContract || projectCount === null) return;
 
+    // Only set loading true on initial load
+    if (projects.length === 0) {
+      setIsLoading(true);
+    }
     try {
       const projectsArray: Project[] = [];
-      for (let i = 1; i <= projectCount; i++) {
+      for (let i = 0; i < projectCount; i++) {
         const project = await publicInferenceContract.read.projects([BigInt(i)]);
-        const [creator, title, description, fundingGoal, deadline, currentFunding, isActive] = project;
+        const [title, description, creator, fundingGoal, currentFunding, deadline, isActive] = project;
 
         projectsArray.push({
           id: i,
-          creator,
+          creator: creator as `0x${string}`,
           title,
           description,
           fundingGoal,
@@ -67,6 +71,8 @@ const Home: NextPage = () => {
           isActive,
         });
       }
+      // console.log(`pcard entry [${i}]: ${JSON.stringify(projectsArray[projectsArray.length - 1])}`);
+
       setProjects(projectsArray);
     } catch (error) {
       console.error("Error fetching projects:", error);

@@ -32,6 +32,7 @@ const Home: NextPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [ipfsCid, setIpfsCid] = useState("");
   const [prompt, setPrompt] = useState("");
+  const [showCreateForm, setShowCreateForm] = useState(false);
 
   const { data: publicInferenceContract } = useScaffoldContract({
     contractName: "PublicInference",
@@ -100,12 +101,10 @@ const Home: NextPage = () => {
 
   const handleCreateProject = async () => {
     try {
-      // Convert IPFS CID to bytes32
       let cidBytes32 = ipfsCid;
       if (!cidBytes32.startsWith("0x")) {
         cidBytes32 = "0x" + cidBytes32;
       }
-      // Pad with zeros if necessary
       cidBytes32 = cidBytes32.padEnd(66, "0");
 
       await createProjectAsync({
@@ -133,6 +132,7 @@ const Home: NextPage = () => {
       setDeadline("");
       setIpfsCid("");
       setPrompt("");
+      setShowCreateForm(false);
     } catch (error) {
       console.error("Error creating project:", error);
     }
@@ -142,23 +142,32 @@ const Home: NextPage = () => {
     <div className="flex items-center flex-col flex-grow pt-10">
       <h1 className="text-center">
         <span className="block text-4xl font-bold">Public Inference Platform</span>
+        <button className="btn btn-primary" onClick={() => setShowCreateForm(!showCreateForm)}>
+          {showCreateForm ? "Back to Projects" : "Create New Project"}
+        </button>
       </h1>
 
       <div className="px-5">
         <div className="max-w-7xl w-full mt-16 px-5">
-          <h2 className="text-3xl font-bold mb-8">Active Projects</h2>
-          {isLoading ? (
-            <div className="flex justify-center">
-              <span className="loading loading-spinner loading-lg"></span>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {projects.map(project => (
-                <ProjectCard key={project.id} {...project} />
-              ))}
-            </div>
-          )}
-          {!isLoading && projects.length === 0 && (
+          {!showCreateForm &&
+            (isLoading ? (
+              <div className="flex justify-center">
+                <span className="loading loading-spinner loading-lg"></span>
+              </div>
+            ) : (
+              <div>
+                <div className="flex justify-between items-center mb-8">
+                  <h2 className="text-3xl font-bold">Active Projects</h2>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {projects.map(project => (
+                    <ProjectCard key={project.id} {...project} />
+                  ))}
+                </div>
+              </div>
+            ))}
+          {!isLoading && projects.length === 0 && !showCreateForm && (
             <div className="text-center py-10">
               <p className="text-xl">No projects found. Be the first to create one!</p>
             </div>
@@ -166,78 +175,79 @@ const Home: NextPage = () => {
         </div>
 
         {/* Project Creation Form */}
-        <div className="max-w-md mx-auto mt-8">
-          <h2 className="text-2xl font-bold mb-4">Create New Project</h2>
-          <div className="space-y-4">
-            <div>
-              <label className="label">Project Title</label>
-              <input
-                type="text"
-                className="input input-bordered w-full"
-                value={title}
-                onChange={e => setTitle(e.target.value)}
-              />
-            </div>
-            <div>
-              <label className="label">Description</label>
-              <textarea
-                className="textarea textarea-bordered w-full"
-                value={description}
-                onChange={e => setDescription(e.target.value)}
-              />
-            </div>
-            <div>
-              <label className="label">Funding Goal (in ETH)</label>
-              <input
-                type="number"
-                className="input input-bordered w-full"
-                value={fundingGoal}
-                onChange={e => setFundingGoal(e.target.value)}
-              />
-            </div>
-            <div>
-              <label className="label">Deadline</label>
-              <input
-                type="datetime-local"
-                className="input input-bordered w-full"
-                value={deadline ? new Date(parseInt(deadline) * 1000).toISOString().slice(0, 16) : ""}
-                onChange={e => {
-                  const selectedDate = new Date(e.target.value);
-                  const unixTimestamp = Math.floor(selectedDate.getTime() / 1000).toString();
-                  setDeadline(unixTimestamp);
-                }}
-                min={new Date().toISOString().slice(0, 16)}
-              />
-            </div>
+        {showCreateForm && (
+          <div className="max-w-md mx-auto mt-8">
+            <h2 className="text-2xl font-bold mb-4">Create New Project</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="label">Project Title</label>
+                <input
+                  type="text"
+                  className="input input-bordered w-full"
+                  value={title}
+                  onChange={e => setTitle(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="label">Description</label>
+                <textarea
+                  className="textarea textarea-bordered w-full"
+                  value={description}
+                  onChange={e => setDescription(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="label">Funding Goal (in ETH)</label>
+                <input
+                  type="number"
+                  className="input input-bordered w-full"
+                  value={fundingGoal}
+                  onChange={e => setFundingGoal(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="label">Deadline</label>
+                <input
+                  type="datetime-local"
+                  className="input input-bordered w-full"
+                  value={deadline ? new Date(parseInt(deadline) * 1000).toISOString().slice(0, 16) : ""}
+                  onChange={e => {
+                    const selectedDate = new Date(e.target.value);
+                    const unixTimestamp = Math.floor(selectedDate.getTime() / 1000).toString();
+                    setDeadline(unixTimestamp);
+                  }}
+                  min={new Date().toISOString().slice(0, 16)}
+                />
+              </div>
 
-            <div>
-              <label className="label">Workflow ID</label>
-              {/* TODO: look up workflows to populate a dropdown */}
-              <input
-                type="text"
-                className="input input-bordered w-full"
-                value={ipfsCid}
-                onChange={e => setIpfsCid(e.target.value)}
-                placeholder="Enter ID for workflow"
-              />
-            </div>
+              <div>
+                <label className="label">Workflow ID</label>
+                <input
+                  type="text"
+                  className="input input-bordered w-full"
+                  value={ipfsCid}
+                  onChange={e => setIpfsCid(e.target.value)}
+                  placeholder="Enter ID for workflow"
+                />
+              </div>
 
-            <div>
-              <label className="label">Compute Prompt</label>
-              <textarea
-                className="textarea textarea-bordered w-full"
-                value={prompt}
-                onChange={e => setPrompt(e.target.value)}
-                placeholder="Enter the prompt for the compute job"
-                rows={3}
-              />
-            </div>
+              <div>
+                <label className="label">Compute Prompt</label>
+                <textarea
+                  className="textarea textarea-bordered w-full"
+                  value={prompt}
+                  onChange={e => setPrompt(e.target.value)}
+                  placeholder="Enter the prompt for the compute job"
+                  rows={3}
+                />
+              </div>
 
-            <button className="btn btn-primary w-full" onClick={handleCreateProject}>
-              Create Project
-            </button>
+              <button className="btn btn-primary w-full" onClick={handleCreateProject}>
+                Create Project
+              </button>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Project Stats */}
         <div className="mt-8 text-center">

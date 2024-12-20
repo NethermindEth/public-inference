@@ -18,6 +18,7 @@ interface Project {
   currentFunding: bigint;
   isActive: boolean;
   ipfsCid?: string;
+  prompt?: string;
 }
 
 const Home: NextPage = () => {
@@ -30,6 +31,7 @@ const Home: NextPage = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [ipfsCid, setIpfsCid] = useState("");
+  const [prompt, setPrompt] = useState("");
 
   const { data: publicInferenceContract } = useScaffoldContract({
     contractName: "PublicInference",
@@ -71,6 +73,7 @@ const Home: NextPage = () => {
           currentFunding,
           isActive,
           ipfsCid: computeSpec.ipfsCID,
+          prompt: computeSpec.prompt,
         });
       }
       setProjects(projectsArray);
@@ -107,7 +110,16 @@ const Home: NextPage = () => {
 
       await createProjectAsync({
         functionName: "createProject",
-        args: [title, description, BigInt(fundingGoal), BigInt(deadline), { ipfsCID: cidBytes32 as `0x${string}` }],
+        args: [
+          title,
+          description,
+          BigInt(fundingGoal),
+          BigInt(deadline),
+          {
+            ipfsCID: cidBytes32 as `0x${string}`,
+            prompt: prompt,
+          },
+        ],
       });
 
       setTimeout(() => {
@@ -120,6 +132,7 @@ const Home: NextPage = () => {
       setFundingGoal("");
       setDeadline("");
       setIpfsCid("");
+      setPrompt("");
     } catch (error) {
       console.error("Error creating project:", error);
     }
@@ -137,7 +150,7 @@ const Home: NextPage = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {projects.map(project => (
-                <ProjectCard key={project.id} {...project} onContribute={handleContribute} />
+                <ProjectCard key={project.id} {...project} />
               ))}
             </div>
           )}
@@ -209,6 +222,17 @@ const Home: NextPage = () => {
                 value={ipfsCid}
                 onChange={e => setIpfsCid(e.target.value)}
                 placeholder="Enter ID for workflow"
+              />
+            </div>
+
+            <div>
+              <label className="label">Compute Prompt</label>
+              <textarea
+                className="textarea textarea-bordered w-full"
+                value={prompt}
+                onChange={e => setPrompt(e.target.value)}
+                placeholder="Enter the prompt for the compute job"
+                rows={3}
               />
             </div>
 

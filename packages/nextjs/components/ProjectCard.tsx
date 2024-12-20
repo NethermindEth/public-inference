@@ -13,6 +13,7 @@ interface ProjectCardProps {
   currentFunding: bigint;
   isActive: boolean;
   ipfsCid?: string;
+  prompt?: string;
 }
 
 const formatDate = (timestamp: bigint) => {
@@ -33,6 +34,7 @@ export const ProjectCard = ({
   currentFunding,
   isActive,
   ipfsCid,
+  prompt,
 }: ProjectCardProps) => {
   const [contributionAmount, setContributionAmount] = useState("");
   const [isContributing, setIsContributing] = useState(false);
@@ -72,6 +74,12 @@ export const ProjectCard = ({
           <div className="mt-2">
             <span className="text-sm font-semibold">Workflow CID: </span>
             <span className="text-sm font-mono break-all">{ipfsCid}</span>
+          </div>
+        )}
+        {prompt && (
+          <div className="mt-2">
+            <span className="text-sm font-semibold">Compute Prompt: </span>
+            <div className="text-sm mt-1 bg-base-300 p-2 rounded-lg">{prompt}</div>
           </div>
         )}
         <div className="space-y-2">

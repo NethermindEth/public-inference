@@ -8,7 +8,13 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 contract PublicInference is Ownable(msg.sender), ReentrancyGuard {
     // Structs
     struct ComputeSpec {
+        // either: ipfs contentHash of a public orchestration spec,
+        // or: a reference to a private orchestration spec
+        //
+        // private specs namespaced with prefix 0x00000000
         bytes32 ipfsCID;
+        // the prompt provided to the orchestration spec
+        string prompt;
     }
 
     struct Project {

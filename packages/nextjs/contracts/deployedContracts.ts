@@ -99,6 +99,11 @@ const deployedContracts = {
                   type: "bytes32",
                   internalType: "bytes32",
                 },
+                {
+                  name: "prompt",
+                  type: "string",
+                  internalType: "string",
+                },
               ],
             },
           ],
@@ -301,6 +306,11 @@ const deployedContracts = {
                   name: "ipfsCID",
                   type: "bytes32",
                   internalType: "bytes32",
+                },
+                {
+                  name: "prompt",
+                  type: "string",
+                  internalType: "string",
                 },
               ],
             },
@@ -507,13 +517,7 @@ const deployedContracts = {
           inputs: [],
         },
       ],
-      inheritedFunctions: {
-        owner: "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
-        renounceOwnership:
-          "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
-        transferOwnership:
-          "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
-      },
+      inheritedFunctions: {},
     },
   },
 } as const;

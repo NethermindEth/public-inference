@@ -28,6 +28,7 @@ contract PublicInference is Ownable(msg.sender), ReentrancyGuard {
         bool completed;
         ComputeSpec computeSpec;
         mapping(address => uint256) contributions;
+        bool started;
     }
 
     // State variables
@@ -139,10 +140,13 @@ contract PublicInference is Ownable(msg.sender), ReentrancyGuard {
         require(!project.completed, "Project already completed");
 
         // Here we would implement the logic to:
-        // 1. Transfer funds to compute provider
-        // 2. Initiate compute job
-        // 3. Handle results
+        //
+        // - scrape platform fee
+        // - scrape orchestrator author's fee
+        //
+        // - Transfer funds to compute orchestrator TEE
 
+        project.started = true;
         project.completed = true;
         emit ProjectCompleted(_projectId);
     }
